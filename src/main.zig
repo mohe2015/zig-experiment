@@ -7,8 +7,15 @@ const panic = std.debug.panic;
 // https://ziglang.org/documentation/master/std/
 // https://ziglang.org/documentation/master/
 
+var window: *g.GLFWwindow = undefined;
+
+export fn errorCallback(err: c_int, description: [*c]const u8) void {
+    panic("Error: {} {s}\n", .{err,description});
+}
+
 pub fn main() anyerror!void {
-    std.log.info("Hi.", .{});
+    _ = g.glfwSetErrorCallback(errorCallback);
+
     if (g.glfwInit() == g.GL_FALSE) {
         panic("Failed to initialize GLFW\n", .{});
     }

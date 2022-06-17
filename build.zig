@@ -14,8 +14,6 @@ pub fn build(b: *std.build.Builder) void {
     const exe = b.addExecutable("hello-world", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
-    exe.addSystemIncludePath("/usr/include");
-    exe.addLibraryPath("/usr/lib/");
     exe.linkSystemLibrary("glfw3");
     exe.linkSystemLibrary("c");
     exe.install();
