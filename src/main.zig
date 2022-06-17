@@ -1,33 +1,39 @@
 const std = @import("std");
 const v = @cImport(@cInclude("vulkan/vulkan.h"));
-const g = @cImport(@cInclude("GLFW/glfw3.h"));
+const c = @cImport(@cInclude("SDL.h"));
 const panic = std.debug.panic;
 
 // https://ziglang.org/documentation/master/std/
 // https://ziglang.org/documentation/master/
 
-var window: *g.GLFWwindow = undefined;
-
-export fn errorCallback(err: c_int, description: [*c]const u8) void {
-    std.log.err("{} {s}\n", .{err,description});
-}
-
 pub fn main() anyerror!void {
-    _ = g.glfwSetErrorCallback(errorCallback);
+    _ = c.SDL_Init(c.SDL_INIT_VIDEO);
+    defer c.SDL_Quit();
 
-    if (g.glfwInit() == g.GL_FALSE) {
-        panic("Failed to initialize GLFW\n", .{});
-    }
-    defer g.glfwTerminate();
+    var window = c.SDL_CreateWindow("hello gamedev", c.SDL_WINDOWPOS_CENTERED, c.SDL_WINDOWPOS_CENTERED, 640, 400, 0);
+    defer c.SDL_DestroyWindow(window);
 
-    // g.glfwWindowHint(g.GLFW_CLIENT_API, g.GLFW_NO_API);
-    window = g.glfwCreateWindow(800, 600, "Vulkan window", null, null) orelse panic("Failed to create window\n", .{});
+    var renderer = c.SDL_CreateRenderer(window, 0, c.SDL_RENDERER_PRESENTVSYNC);
+    defer c.SDL_DestroyRenderer(renderer);
 
-    while (true) {
+    var frame: usize = 0;
+    mainloop: while (true) {
+        var sdl_event: c.SDL_Event = undefined;
+        while (c.SDL_PollEvent(&sdl_event) != 0) {
+            switch (sdl_event.type) {
+                c.SDL_QUIT => break :mainloop,
+                else => {},
+            }
+        }
+
+        _ = c.SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
+        _ = c.SDL_RenderClear(renderer);
         
-    }
+    
 
-    std.log.info("All your codebase are belong to us.", .{});
+        c.SDL_RenderPresent(renderer);
+        frame += 1;
+    }
 }
 
 test "basic test" {
